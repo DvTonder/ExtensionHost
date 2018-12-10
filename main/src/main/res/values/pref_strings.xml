@@ -1,0 +1,25 @@
+<!--
+  Copyright 2012 Google Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <!-- World readability -->
+
+    <string name="force_world_readable_dialog_description">Another app is requesting the ability to see information from all your DashClock extensions, including private ones such as calendar, contacts, etc. Do you want to <b>allow this for all apps</b>?</string>
+
+    <string name="force_world_readable_dialog_no">Cancel</string>
+    <string name="force_world_readable_dialog_yes">Allow for all apps</string>
+
+</resources>

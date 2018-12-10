@@ -1,0 +1,143 @@
+/*
+ * Copyright 2013 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import org.gradle.api.artifacts.maven.MavenDeployment
+
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'java'
+
+jar.baseName = 'dashclock-api'
+group = 'com.google.android.apps.dashclock'
+version = '2.1.0'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+def Properties props = new Properties()
+props.load(new FileInputStream(file('../local.properties')))
+
+def android = [
+        sdk: props["sdk.dir"],
+        target: 'android-23'
+]
+
+allprojects { ext."signing.keyId" = props["signing.keyId"] }
+allprojects { ext."signing.password" = props["signing.password"] }
+allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
+
+
+task compileAidl << {
+    FileTree aidls = fileTree('src/main/aidl').include('**/I*.aidl')
+    aidls.each {File aidl ->
+        def shell = ["${android.sdk}/build-tools/${rootProject.ext.buildToolsVersion}/aidl",
+                "-p${android.sdk}/platforms/${android.target}/framework.aidl",
+                "-I${file('src/main/aidl')}",
+                "-o${file('build-aidl')}",
+                "${aidl.absolutePath}"]
+        def proc = shell.execute()
+        proc.in.eachLine {line -> println line}
+        proc.err.eachLine {line -> println 'stderr: ' + line}
+        proc.waitFor()
+    }
+}
+
+compileJava.dependsOn(compileAidl)
+
+sourceSets {
+    main.java.srcDirs += 'build-aidl'
+}
+
+clean {
+    delete 'build-aidl'
+}
+
+task javadoc(type: Exec, overwrite: true, dependsOn: 'jar') {
+    commandLine './javadoc-scripts/generate_javadoc.sh'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    baseName = jar.baseName
+    from 'build/javadoc'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    baseName = jar.baseName
+    from sourceSets.main.allSource
+    from fileTree('src/main/aidl').include('**/I*.aidl')
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
+dependencies {
+    compile files("${android.sdk}/platforms/${android.target}/android.jar")
+}
+
+// http://jedicoder.blogspot.com/2011/11/automated-gradle-project-deployment-to.html
+// TODO: switch to http://www.gradle.org/docs/current/userguide/publishing_maven.html
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: props["sonatypeUsername"], password: props["sonatypePassword"])
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: props["sonatypeUsername"], password: props["sonatypePassword"])
+            }
+
+            pom.project {
+               name 'DashClock API'
+               packaging 'jar'
+               description 'The DashClock API allows you to extend DashClock with custom extensions'
+               url 'http://dashclock.com/api'
+
+               scm {
+                   url 'https://code.google.com/p/dashclock/source/browse'
+                   connection 'scm:git:https://code.google.com/p/dashclock/'
+                   developerConnection 'scm:git:https://code.google.com/p/dashclock/'
+               }
+
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+
+               developers {
+                   developer {
+                       id 'romannurik'
+                       name 'Roman Nurik'
+                   }
+               }
+           }
+        }
+    }
+}
