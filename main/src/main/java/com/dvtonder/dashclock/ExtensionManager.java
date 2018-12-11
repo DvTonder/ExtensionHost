@@ -249,8 +249,6 @@ class ExtensionManager {
         Log.d(TAG, "Searching for available extensions...");
 
         for (ResolveInfo resolveInfo : resolveInfos) {
-            Log.d(TAG, "Checking resolveInfo: " + resolveInfo.loadLabel(pm).toString());
-
             ExtensionListing info = new ExtensionListing();
             info.componentName(new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name));
             info.title(resolveInfo.loadLabel(pm).toString());
