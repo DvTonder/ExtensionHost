@@ -53,19 +53,6 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"/>
 
-        <receiver android:name="com.dvtonder.dashclock.ExtensionPackageChangeReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.PACKAGE_ADDED" />
-                <action android:name="android.intent.action.PACKAGE_CHANGED" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
-                <action android:name="android.intent.action.PACKAGE_REMOVED" />
-                <data android:scheme="package" />
-            </intent-filter>
-        </receiver>
-
-        <receiver android:name="com.dvtonder.dashclock.PeriodicExtensionRefreshReceiver"
-            android:exported="false" />
-
         <activity android:name="com.dvtonder.dashclock.EnableForceWorldReadableDialogActivity"
             android:theme="@android:style/Theme.NoDisplay"
             android:excludeFromRecents="true"

@@ -79,6 +79,7 @@ class ExtensionManager {
     /**
      * De-activates active extensions that are unsupported or are no longer installed.
      */
+    @SuppressWarnings("UnusedReturnValue")
     boolean cleanupExtensions() {
         Set<ComponentName> availableExtensions = new HashSet<>();
         for (ExtensionListing info : getAvailableExtensions()) {

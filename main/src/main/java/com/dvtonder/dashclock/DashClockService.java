@@ -116,10 +116,6 @@ public class DashClockService extends Service implements
         IntentFilter filter = new IntentFilter(ACTION_EXTENSION_UPDATE_REQUESTED);
         LocalBroadcastManager.getInstance(this).registerReceiver(mExtensionEventsReceiver, filter);
 
-        // Start a periodic refresh of all the extensions
-        // FIXME: only do this if there are any active extensions
-        PeriodicExtensionRefreshReceiver.updateExtensionsAndEnsurePeriodicRefresh(this);
-
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
         onSharedPreferenceChanged(sp, PREF_FORCE_WORLD_READABLE);
@@ -131,7 +127,6 @@ public class DashClockService extends Service implements
         Log.d(TAG, "onDestroy");
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mExtensionEventsReceiver);
-        PeriodicExtensionRefreshReceiver.cancelPeriodicRefresh(this);
 
         mExtensionHost.destroy();
         mCallbacks.kill();
