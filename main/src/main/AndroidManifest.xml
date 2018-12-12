@@ -66,6 +66,16 @@
         <receiver android:name="com.dvtonder.dashclock.PeriodicExtensionRefreshReceiver"
             android:exported="false" />
 
+        <activity android:name="com.dvtonder.dashclock.EnableForceWorldReadableDialogActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.apps.dashclock.action.ASK_ENABLE_FORCE_WORLD_READABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>
