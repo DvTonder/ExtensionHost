@@ -148,9 +148,6 @@ public class DashClockService extends Service implements
             if (ACTION_UPDATE_EXTENSIONS.equals(action)) {
                 handleUpdateExtensions(intent);
             }
-
-            // If started by a wakeful broadcast receiver, release the wake lock it acquired.
-            WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
 
         return START_STICKY;
