@@ -16,6 +16,7 @@
 
 package com.dvtonder.extensionhost;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -24,6 +25,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
@@ -99,6 +103,34 @@ class ExtensionHost {
         mExtensionManager.cleanupExtensions();
 
         Log.d(TAG, "ExtensionHost initialized.");
+
+        // Log the signature
+        /*
+        String signature = getSigningKeyCertificate(mContext);
+        if (signature != null) {
+            Log.d(TAG, "Signature: = " + signature);
+        } else {
+            Log.d(TAG, "Could not retrieve signature");
+        }
+        */
+    }
+
+    private static String getSigningKeyCertificate(Context ctx) {
+        try {
+            PackageManager pm = ctx.getPackageManager();
+            String packageName = ctx.getPackageName();
+            int flags = PackageManager.GET_SIGNATURES;
+            @SuppressLint("PackageManagerGetSignatures")
+            PackageInfo packageInfo = pm.getPackageInfo(packageName, flags);
+            Signature[] signatures = packageInfo.signatures;
+
+            if (signatures != null && signatures.length >= 1) {
+                return signatures[0].toCharsString();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, e);
+        }
+        return null;
     }
 
     void destroy() {
