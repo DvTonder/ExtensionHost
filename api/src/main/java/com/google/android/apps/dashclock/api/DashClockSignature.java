@@ -51,6 +51,7 @@ public final class DashClockSignature {
     /**
      * The signature of the Chronus DashClock Host app (com.dvtonder.extensionhost).
      */
+    /*
     public static final Signature CHRONUS_SIGNATURE = new Signature(""
             + "308203433082022ba0030201020204065f73ff300d06092a864886f70d01010b05003052310b30090603"
             + "550406130243413110300e060355040813074f6e746172696f3110300e06035504071307546f726f6e74"
@@ -72,4 +73,5 @@ public final class DashClockSignature {
             + "772b21a631c7cb54936954a656bf78e5dfa9d2ba5a587b30f9d4743203effd6c25112e62d17da4d1b781"
             + "25dcdc12a81a17529a569717d8916d8ff83437d54b2a20ff57c51141ef4e0bb4b65f14bcf827fc981fd3"
             + "4b5703df3580293a0762582965b5403ac57d41d083e4d235a3859753c59336309a0a130f0e669406c");
+            */
 }
