@@ -16,7 +16,7 @@
 
 apply plugin: 'com.android.application'
 
-project.archivesBaseName = "dashclock"
+project.archivesBaseName = "extensionhost"
 
 dependencies {
     implementation 'com.google.android.material:material:1.0.0'
