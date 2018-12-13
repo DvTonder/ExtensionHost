@@ -18,7 +18,7 @@
 
     <!-- Themes -->
 
-    <style name="Theme.Dialog.Base" parent="Theme.AppCompat.Light.Dialog">
+    <style name="Theme.Dialog.Base" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="colorPrimary">@color/theme_primary</item>
         <item name="colorAccent">@color/theme_primary</item>
         <item name="android:textColorLink">@color/theme_primary</item>

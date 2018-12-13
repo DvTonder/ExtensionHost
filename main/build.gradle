@@ -19,8 +19,7 @@ apply plugin: 'com.android.application'
 project.archivesBaseName = "dashclock"
 
 dependencies {
-    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
     api project(':api')
 }
 
@@ -62,6 +61,8 @@ android {
         }
     }
 
+
+
     buildTypes {
         release {
             //minifyEnabled true
@@ -74,7 +75,7 @@ android {
         publicBeta {
             //minifyEnabled true
             //shrinkResources true
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             versionNameSuffix " Beta " + versionProps['betaNumber']
         }
 
