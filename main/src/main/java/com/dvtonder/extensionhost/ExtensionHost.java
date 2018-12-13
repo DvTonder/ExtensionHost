@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dvtonder.dashclock;
+package com.dvtonder.extensionhost;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;

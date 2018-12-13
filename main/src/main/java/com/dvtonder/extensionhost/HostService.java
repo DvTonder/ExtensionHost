@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dvtonder.dashclock;
+package com.dvtonder.extensionhost;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -33,7 +33,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.legacy.content.WakefulBroadcastReceiver;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -55,7 +55,7 @@ import java.util.Map;
  * The primary service for DashClock. This service is in charge of updating extension data (see {@link #ACTION_UPDATE_EXTENSIONS}).
  */
 @SuppressWarnings("ALL")
-public class DashClockService extends Service implements
+public class HostService extends Service implements
         ExtensionManager.OnChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "DashclockService";
@@ -238,7 +238,7 @@ public class DashClockService extends Service implements
             }
 
             // Start the proxy activity
-            Intent i = new Intent(DashClockService.this, ExtensionSettingActivityProxy.class);
+            Intent i = new Intent(HostService.this, ExtensionSettingActivityProxy.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.putExtra(EXTRA_COMPONENT_NAME, info.componentName().flattenToString());
             i.putExtra(ExtensionSettingActivityProxy.EXTRA_SETTINGS_ACTIVITY, info.settingsActivity().flattenToString());

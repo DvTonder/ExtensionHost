@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dvtonder.dashclock;
+package com.dvtonder.extensionhost;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -79,7 +79,7 @@ public class EnableForceWorldReadableDialogActivity extends Activity {
 
         private void enableForceWorldReadable() {
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            sp.edit().putBoolean(DashClockService.PREF_FORCE_WORLD_READABLE, true).apply();
+            sp.edit().putBoolean(HostService.PREF_FORCE_WORLD_READABLE, true).apply();
         }
     }
 }

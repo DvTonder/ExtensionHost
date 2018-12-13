@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dvtonder.dashclock;
+package com.dvtonder.extensionhost;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -41,7 +41,7 @@ public class ExtensionSettingActivityProxy extends Activity {
         super.onCreate(savedInstanceState);
         setTheme(android.R.style.Theme_Translucent_NoTitleBar);
 
-        mExtension = getIntent().getStringExtra(DashClockService.EXTRA_COMPONENT_NAME);
+        mExtension = getIntent().getStringExtra(HostService.EXTRA_COMPONENT_NAME);
         String activity = getIntent().getStringExtra(EXTRA_SETTINGS_ACTIVITY);
         if (mExtension == null || activity == null) {
             finish();
@@ -67,9 +67,9 @@ public class ExtensionSettingActivityProxy extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RESULT_EXTENSION_SETTINGS) {
             final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-            Intent intent = new Intent(DashClockService.ACTION_EXTENSION_UPDATE_REQUESTED);
-            intent.putExtra(DashClockService.EXTRA_COMPONENT_NAME, mExtension);
-            intent.putExtra(DashClockService.EXTRA_UPDATE_REASON, DashClockExtension.UPDATE_REASON_SETTINGS_CHANGED);
+            Intent intent = new Intent(HostService.ACTION_EXTENSION_UPDATE_REQUESTED);
+            intent.putExtra(HostService.EXTRA_COMPONENT_NAME, mExtension);
+            intent.putExtra(HostService.EXTRA_UPDATE_REASON, DashClockExtension.UPDATE_REASON_SETTINGS_CHANGED);
             lbm.sendBroadcast(intent);
         }
         finish();
