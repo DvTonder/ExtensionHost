@@ -16,6 +16,7 @@
 
 package com.google.android.apps.dashclock.api.host;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PermissionInfo;
 import android.content.pm.ServiceInfo;
+import android.content.pm.Signature;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -515,9 +517,9 @@ public abstract class DashClockHost {
      */
     private static ComponentName getMultiplexerService(Context context) {
         PackageManager pm = context.getPackageManager();
-        boolean debuggable =
-                (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        boolean debuggable = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         try {
+            @SuppressLint("PackageManagerGetSignatures")
             PackageInfo pi = pm.getPackageInfo(MULTIPLEXER_HOST_SERVICE.getPackageName(),
                     PackageManager.GET_SIGNATURES | PackageManager.GET_SERVICES);
             if (pi.applicationInfo.enabled) {
@@ -527,10 +529,13 @@ public abstract class DashClockHost {
                             return MULTIPLEXER_HOST_SERVICE;
                         }
 
-                        if (pi.signatures != null
-                                && pi.signatures.length == 1
-                                && DashClockSignature.SIGNATURE.equals(pi.signatures[0])) {
-                            return MULTIPLEXER_HOST_SERVICE;
+                        // Validate the signature against known-good host apps
+                        if (pi.signatures != null && pi.signatures.length == 1) {
+                            for (Signature signature : DashClockSignature.SIGNATURES) {
+                                if (signature.equals(pi.signatures[0])) {
+                                    return MULTIPLEXER_HOST_SERVICE;
+                                }
+                            }
                         }
                     }
                 }
@@ -541,6 +546,7 @@ public abstract class DashClockHost {
         return null;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void enforcePermission(Context context, String permission)
             throws SecurityException {
         // Check whether any of the caller's packages requests the expected permission
@@ -564,8 +570,7 @@ public abstract class DashClockHost {
     public static boolean isDashClockPresent(Context context) {
         try {
             // Check whether the DashClock multiplexer service is installed or not:
-            context.getPackageManager().getPackageInfo(
-                    MULTIPLEXER_HOST_SERVICE.getPackageName(), 0);
+            context.getPackageManager().getPackageInfo(MULTIPLEXER_HOST_SERVICE.getPackageName(), 0);
             return true;
         } catch (NameNotFoundException e) {
             return false;

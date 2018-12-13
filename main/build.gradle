@@ -64,10 +64,17 @@ android {
 
 
     buildTypes {
+        debug {
+            debuggable true
+            //minifyEnabled true
+            //shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+        }
+
         release {
             //minifyEnabled true
             //shrinkResources true
-            //proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), file('proguard-project.txt')
             signingConfig signingConfigs.release
         }
 

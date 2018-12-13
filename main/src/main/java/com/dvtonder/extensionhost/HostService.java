@@ -25,6 +25,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -474,15 +475,18 @@ public class HostService extends Service implements
             try {
                 PackageInfo pi = pm.getPackageInfo(packages[0], PackageManager.GET_SIGNATURES);
                 packageName = pi.packageName;
-                if (pi.signatures != null
-                        && pi.signatures.length == 1
-                        && DashClockSignature.SIGNATURE.equals(pi.signatures[0])) {
-                    hasDashClockSignature = true;
+
+                // Validate the signature against known-good host apps
+                if (pi.signatures != null && pi.signatures.length == 1) {
+                    for (Signature signature : DashClockSignature.SIGNATURES) {
+                        if(signature.equals(pi.signatures[0])) {
+                            hasDashClockSignature = true;
+                        }
+                    }
                 }
             } catch (PackageManager.NameNotFoundException ignored) {
             }
         }
-
 
         CallbackData data = new CallbackData();
         data.mUid = uid;

@@ -19,12 +19,14 @@ package com.google.android.apps.dashclock.api;
 import com.google.android.apps.dashclock.api.internal.IExtension;
 import com.google.android.apps.dashclock.api.internal.IExtensionHost;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
+import android.content.pm.Signature;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -270,24 +272,24 @@ public abstract class DashClockExtension extends Service {
                 String[] packages = pm.getPackagesForUid(getCallingUid());
                 if (packages != null && packages.length > 0) {
                     try {
+                        @SuppressLint("PackageManagerGetSignatures")
                         PackageInfo pi = pm.getPackageInfo(packages[0], PackageManager.GET_SIGNATURES);
-                        if (pi.signatures != null
-                                && pi.signatures.length == 1
-                                && DashClockSignature.SIGNATURE.equals(pi.signatures[0])) {
-                            verified = true;
+
+                        // Validate the signature against known-good host apps
+                        if (pi.signatures != null && pi.signatures.length == 1) {
+                            for (Signature signature : DashClockSignature.SIGNATURES) {
+                                if (signature.equals(pi.signatures[0])) {
+                                    verified = true;
+                                }
+                            }
                         }
                     } catch (PackageManager.NameNotFoundException ignored) {
                     }
                 }
 
-                // FIXME: Remove this override
-                verified = true;
-
                 if (!verified) {
-                    Log.e(TAG, "Caller is not official DashClock app and this "
-                            + "extension is not world-readable.");
-                    throw new SecurityException("Caller is not official DashClock app and this "
-                            + "extension is not world-readable.");
+                    Log.e(TAG, "Caller is not a known-good DashClock app and this extension is not world-readable.");
+                    throw new SecurityException("Caller is not a known-good DashClock app and this extension is not world-readable.");
                 }
             }
 
