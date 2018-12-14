@@ -34,3 +34,5 @@ keystore.properties
 # Sandbox stuff
 _sandbox
 
+/debug.keystore
+/release.properties
