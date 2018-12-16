@@ -165,7 +165,10 @@ class ExtensionManager {
             mActiveExtensions.addAll(newActiveExtensions);
         }
 
-        Log.d(TAG, "List of active extensions has changed.");
+        Log.d(TAG, "List of active extensions has changed. Now contains " + mActiveExtensions.size() + " items");
+        for (ExtensionWithData ewd : mActiveExtensions) {
+            Log.d(TAG, "Extension: " + ewd.listing.title() + ", wr: " + ewd.listing.worldReadable() + ", compatible: " + ewd.listing.compatible());
+        }
         notifyOnChangeListeners(null);
     }
 
@@ -270,7 +273,10 @@ class ExtensionManager {
             availableExtensions.add(info);
         }
 
-        Log.d(TAG, "Found " + availableExtensions.size() + " Extensions");
+        Log.d(TAG, "List of available extensions has changed. Now contains " + availableExtensions.size() + " items");
+        for (ExtensionListing ext : availableExtensions) {
+            Log.d(TAG, "Extension: " + ext.title() + ", wr: " + ext.worldReadable() + ", compatible: " + ext.compatible());
+        }
         return availableExtensions;
     }
 

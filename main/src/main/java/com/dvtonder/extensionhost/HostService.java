@@ -223,15 +223,16 @@ public class HostService extends Service implements
         }
 
         @Override
-        public void showExtensionSettings(ComponentName extension,
-                                          final IDataConsumerHostCallback cb) throws RemoteException {
+        public void showExtensionSettings(ComponentName extension, final IDataConsumerHostCallback cb)
+                throws RemoteException {
+
             // Check that callback was registered and that extension was enabled
             enforceEnabledExtensionForCallback(cb, extension);
 
             // Make sure we know about the passed in extension
             ExtensionListing info = findExtensionInfo(extension);
             if (info == null) {
-                throw new NullPointerException("ExtensionInfo doesn't exists");
+                throw new NullPointerException("ExtensionInfo doesn't exist");
             }
             if (info.settingsActivity() == null) {
                 // Nothing to show
@@ -247,8 +248,8 @@ public class HostService extends Service implements
         }
 
         @Override
-        public void requestExtensionUpdate(List<ComponentName> extensions,
-                                           final IDataConsumerHostCallback cb) throws RemoteException {
+        public void requestExtensionUpdate(List<ComponentName> extensions, final IDataConsumerHostCallback cb)
+                throws RemoteException {
             enforceRegisteredCallingCallback(cb);
             internalRequestUpdateData(cb, extensions);
         }
