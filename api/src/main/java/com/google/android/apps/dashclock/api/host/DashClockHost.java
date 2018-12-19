@@ -220,6 +220,19 @@ public abstract class DashClockHost {
     }
 
     /**
+     * Request a manual update for the list of available extensions.
+     */
+    List<ExtensionListing> requestAvailableExtensions() {
+        try {
+            if (mService != null) {
+                mAvailableExtensions = mService.getAvailableExtensions();
+            }
+        } catch (RemoteException ignored) {
+        }
+        return mAvailableExtensions;
+    }
+
+    /**
      * Get the extension data for a given extension.
      *
      * @param extension  Extension to get data for
