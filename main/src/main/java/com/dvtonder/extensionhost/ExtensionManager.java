@@ -50,6 +50,8 @@ import java.util.Set;
 class ExtensionManager {
     private static final String TAG = "ExtensionManager";
 
+    private static final boolean DEBUG = false;
+
     private final Context mApplicationContext;
 
     private final Set<ExtensionWithData> mActiveExtensions = new HashSet<>();
@@ -65,7 +67,7 @@ class ExtensionManager {
     private ExtensionManager(Context context) {
         mApplicationContext = context.getApplicationContext();
         mValuesPreferences = mApplicationContext.getSharedPreferences("extension_data", 0);
-        Log.d(TAG, "ExtensionManager instantiated.");
+        if (DEBUG) Log.d(TAG, "ExtensionManager instantiated.");
     }
 
     static ExtensionManager getInstance(Context context) {
@@ -126,7 +128,7 @@ class ExtensionManager {
 
         Set<ComponentName> activeExtensionNames = getActiveExtensionNames();
         if (activeExtensionNames.equals(allExtensions)) {
-            Log.d(TAG, "No change to list of active extensions.");
+            if (DEBUG) Log.d(TAG, "No change to list of active extensions.");
             return;
         }
 
@@ -165,9 +167,9 @@ class ExtensionManager {
             mActiveExtensions.addAll(newActiveExtensions);
         }
 
-        Log.d(TAG, "List of active extensions has changed. Now contains " + mActiveExtensions.size() + " items");
+        if (DEBUG) Log.d(TAG, "List of active extensions has changed. Now contains " + mActiveExtensions.size() + " items");
         for (ExtensionWithData ewd : mActiveExtensions) {
-            Log.d(TAG, "Extension: " + ewd.listing.title() + ", wr: " + ewd.listing.worldReadable() + ", compatible: " + ewd.listing.compatible());
+            if (DEBUG) Log.d(TAG, "Extension: " + ewd.listing.title() + ", wr: " + ewd.listing.worldReadable() + ", compatible: " + ewd.listing.compatible());
         }
         notifyOnChangeListeners(null);
     }
@@ -236,7 +238,7 @@ class ExtensionManager {
         Set<ComponentName> list = new HashSet<>();
         for (ExtensionWithData ci : mActiveExtensions) {
             list.add(ci.listing.componentName());
-            Log.d(TAG, "Active extension: " + ci.listing.componentName().getClassName());
+            if (DEBUG) Log.d(TAG, "Active extension: " + ci.listing.componentName().getClassName());
         }
         return list;
     }
@@ -250,10 +252,10 @@ class ExtensionManager {
         PackageManager pm = mApplicationContext.getPackageManager();
         List<ResolveInfo> resolveInfos = pm.queryIntentServices(new Intent(DashClockExtension.ACTION_EXTENSION), PackageManager.GET_META_DATA);
 
-        Log.d(TAG, "Searching for available extensions...");
+        if (DEBUG) Log.d(TAG, "Searching for available extensions...");
 
         for (ResolveInfo resolveInfo : resolveInfos) {
-            Log.d(TAG, "Checking resolveInfo: " + resolveInfo.loadLabel(pm).toString());
+            if (DEBUG) Log.d(TAG, "Checking resolveInfo: " + resolveInfo.loadLabel(pm).toString());
 
             ExtensionListing info = new ExtensionListing();
             info.componentName(new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name));
@@ -273,9 +275,9 @@ class ExtensionManager {
             availableExtensions.add(info);
         }
 
-        Log.d(TAG, "List of available extensions has changed. Now contains " + availableExtensions.size() + " items");
+        if (DEBUG) Log.d(TAG, "List of available extensions has changed. Now contains " + availableExtensions.size() + " items");
         for (ExtensionListing ext : availableExtensions) {
-            Log.d(TAG, "Extension: " + ext.title() + ", wr: " + ext.worldReadable() + ", compatible: " + ext.compatible());
+            if (DEBUG) Log.d(TAG, "Extension: " + ext.title() + ", wr: " + ext.worldReadable() + ", compatible: " + ext.compatible());
         }
         return availableExtensions;
     }

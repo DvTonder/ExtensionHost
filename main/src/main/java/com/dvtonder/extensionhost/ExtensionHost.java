@@ -63,6 +63,8 @@ class ExtensionHost {
     // TODO: this class badly needs inline docs
     private static final String TAG = "ExtensionHost";
 
+    private static final boolean DEBUG = false;
+
     private static final int CURRENT_EXTENSION_PROTOCOL_VERSION = 2;
 
     /**
@@ -98,7 +100,7 @@ class ExtensionHost {
         mChangeListener.onExtensionsChanged(null);
         mExtensionManager.cleanupExtensions();
 
-        Log.d(TAG, "ExtensionHost initialized.");
+        if (DEBUG) Log.d(TAG, "ExtensionHost initialized.");
     }
 
     void destroy() {
@@ -147,7 +149,7 @@ class ExtensionHost {
     }
 
     private Connection createConnection(final ComponentName cn, final boolean isReconnect) {
-        Log.d(TAG, "createConnection for " + cn + "; isReconnect=" + isReconnect);
+        if (DEBUG) Log.d(TAG, "createConnection for " + cn + "; isReconnect=" + isReconnect);
 
         final Connection conn = new Connection();
         conn.componentName = cn;
@@ -241,7 +243,7 @@ class ExtensionHost {
                 }
 
                 // TODO: this needs to be thread-safe
-                Log.d(TAG, "publishUpdate received for extension " + conn.componentName);
+                if (DEBUG) Log.d(TAG, "publishUpdate received for extension " + conn.componentName);
                 mExtensionManager.updateExtensionData(conn.componentName, data);
             }
 
@@ -314,7 +316,7 @@ class ExtensionHost {
                 // extensions added or removed).
                 return;
             }
-            Log.d(TAG, "onExtensionsChanged; calling establishAndDestroyConnections.");
+            if (DEBUG) Log.d(TAG, "onExtensionsChanged; calling establishAndDestroyConnections.");
             establishAndDestroyConnections(mExtensionManager.getActiveExtensionNames());
         }
     };

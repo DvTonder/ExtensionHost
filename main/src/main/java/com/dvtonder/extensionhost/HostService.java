@@ -59,7 +59,9 @@ import java.util.Map;
 public class HostService extends Service implements
         ExtensionManager.OnChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
-    private static final String TAG = "DashclockService";
+    private static final String TAG = "HostService";
+
+    private static final boolean DEBUG = false;
 
     /**
      * Intent action for telling extensions to update their data. If {@link #EXTRA_COMPONENT_NAME}
@@ -105,7 +107,7 @@ public class HostService extends Service implements
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate");
+        if (DEBUG) Log.d(TAG, "onCreate");
 
         // Initialize the extensions components (host and manager)
         mCallbacks = new CallbackList();
@@ -125,7 +127,7 @@ public class HostService extends Service implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy");
+        if (DEBUG) Log.d(TAG, "onDestroy");
 
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mExtensionEventsReceiver);
 
@@ -141,7 +143,7 @@ public class HostService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand: " + (intent != null ? intent.toString() : "no intent"));
+        if (DEBUG) Log.d(TAG, "onStartCommand: " + (intent != null ? intent.toString() : "no intent"));
         enforceCallingPermission(DashClockExtension.PERMISSION_READ_EXTENSION_DATA);
 
         if (intent != null) {
@@ -157,7 +159,7 @@ public class HostService extends Service implements
     private Handler mUpdateHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            Log.d(TAG, "onExtensionsChanged from "
+            if (DEBUG) Log.d(TAG, "onExtensionsChanged from "
                     + (msg.obj != null ? "extension " + msg.obj : "DashClock"));
             sendBroadcast(new Intent(ACTION_EXTENSIONS_CHANGED));
         }
@@ -170,7 +172,7 @@ public class HostService extends Service implements
         int reason = intent.getIntExtra(EXTRA_UPDATE_REASON, DashClockExtension.UPDATE_REASON_UNKNOWN);
         String updateExtension = intent.getStringExtra(EXTRA_COMPONENT_NAME);
 
-        Log.d(TAG, String.format("handleUpdateExtensions [action=%s, reason=%d, extension=%s]",
+        if (DEBUG) Log.d(TAG, String.format("handleUpdateExtensions [action=%s, reason=%d, extension=%s]",
                 intent.getAction(), reason, updateExtension == null ? "" : updateExtension));
 
         // Either update all extensions, or only the requested one.
@@ -330,7 +332,7 @@ public class HostService extends Service implements
 
     @Override
     public void onExtensionsChanged(ComponentName sourceExtension) {
-        Log.d(TAG, "onExtensionsChanged: source = " + sourceExtension);
+        if (DEBUG) Log.d(TAG, "onExtensionsChanged: source = " + sourceExtension);
 
         mUpdateHandler.removeCallbacksAndMessages(null);
         mUpdateHandler.sendMessageDelayed(
@@ -410,7 +412,7 @@ public class HostService extends Service implements
                 }
             }
         }
-        Log.d(TAG, "recalculateActiveExtensions: determined list = " + extensions);
+        if (DEBUG) Log.d(TAG, "recalculateActiveExtensions: determined list = " + extensions);
         mExtensionManager.setActiveExtensions(extensions);
     }
 
