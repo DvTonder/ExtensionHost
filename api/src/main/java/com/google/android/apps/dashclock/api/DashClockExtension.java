@@ -353,6 +353,10 @@ public abstract class DashClockExtension extends Service {
      *             the extension from view).
      */
     protected final void publishUpdate(ExtensionData data) {
+        if (!mInitialized) {
+            Log.w(TAG, "The extensions host is not initialized, cannot publish update");
+            return;
+        }
         try {
             mHost.publishUpdate(data);
         } catch (RemoteException e) {
@@ -370,6 +374,10 @@ public abstract class DashClockExtension extends Service {
      * @param uris The URIs to watch.
      */
     protected final void addWatchContentUris(String[] uris) {
+        if (!mInitialized) {
+            Log.w(TAG, "The extensions host is not initialized, cannot add WatchContentUris");
+            return;
+        }
         try {
             mHost.addWatchContentUris(uris);
         } catch (RemoteException e) {
@@ -384,6 +392,10 @@ public abstract class DashClockExtension extends Service {
      * @since Protocol Version 2 (API r2.x)
      */
     protected final void removeAllWatchContentUris() {
+        if (!mInitialized) {
+            Log.w(TAG, "The extensions host is not initialized, cannot remove all WatchContentUris");
+            return;
+        }
         try {
             mHost.removeAllWatchContentUris();
         } catch (RemoteException e) {
@@ -402,6 +414,10 @@ public abstract class DashClockExtension extends Service {
      *                           the screen turns on.
      */
     protected final void setUpdateWhenScreenOn(boolean updateWhenScreenOn) {
+        if (!mInitialized) {
+            Log.w(TAG, "The extensions host is not initialized, cannot set UpdateWhenScreenOn");
+            return;
+        }
         try {
             mHost.setUpdateWhenScreenOn(updateWhenScreenOn);
         } catch (RemoteException e) {
