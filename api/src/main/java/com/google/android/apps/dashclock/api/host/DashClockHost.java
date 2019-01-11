@@ -535,7 +535,7 @@ public abstract class DashClockHost {
             @SuppressLint("PackageManagerGetSignatures")
             PackageInfo pi = pm.getPackageInfo(MULTIPLEXER_HOST_SERVICE.getPackageName(),
                     PackageManager.GET_SIGNATURES | PackageManager.GET_SERVICES);
-            if (pi.applicationInfo.enabled) {
+            if ((pi.applicationInfo != null && pi.applicationInfo.enabled) && pi.services != null) {
                 for (ServiceInfo si : pi.services) {
                     if (MULTIPLEXER_HOST_SERVICE.getClassName().equals(si.name) && si.enabled) {
                         if (debuggable) {
