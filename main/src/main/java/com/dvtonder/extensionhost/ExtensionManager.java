@@ -72,7 +72,7 @@ class ExtensionManager {
 
     static ExtensionManager getInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new ExtensionManager(context);
+            sInstance = new ExtensionManager(context.getApplicationContext());
         }
 
         return sInstance;
