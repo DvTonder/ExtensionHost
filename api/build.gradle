@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.gradle.api.artifacts.maven.MavenDeployment
 
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -26,7 +25,7 @@ version = '2.2.0'
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-def Properties props = new Properties()
+Properties props = new Properties()
 props.load(new FileInputStream(file('../local.properties')))
 
 def android = [
@@ -39,7 +38,7 @@ allprojects { ext."signing.password" = props["signing.password"] }
 allprojects { ext."signing.secretKeyRingFile" = props["signing.secretKeyRingFile"] }
 
 
-task compileAidl << {
+task compileAidl {
     FileTree aidls = fileTree('src/main/aidl').include('**/I*.aidl')
     aidls.each {File aidl ->
         def shell = ["${android.sdk}/build-tools/${rootProject.ext.buildToolsVersion}/aidl",
@@ -88,7 +87,7 @@ artifacts {
 }
 
 dependencies {
-    compile files("${android.sdk}/platforms/${android.target}/android.jar")
+    implementation files("${android.sdk}/platforms/${android.target}/android.jar")
 }
 
 // http://jedicoder.blogspot.com/2011/11/automated-gradle-project-deployment-to.html
