@@ -376,7 +376,7 @@ public abstract class DashClockHost {
      * INTERNAL IMPLEMENTATION
      */
 
-    private Context mContext;
+    private final Context mContext;
     private IDataConsumerHost mService;
     private List<ExtensionListing> mAvailableExtensions;
     private boolean mNonWorldReadableExtensionsVisible;
@@ -390,7 +390,7 @@ public abstract class DashClockHost {
 
     private final Handler mHandler;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = IDataConsumerHost.Stub.asInterface(service);

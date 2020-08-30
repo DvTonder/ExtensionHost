@@ -129,6 +129,7 @@ import android.util.Log;
  * }
  * </pre>
  */
+@SuppressWarnings("unused")
 public abstract class DashClockExtension extends Service {
     private static final String TAG = "DashClockExtension";
 
@@ -261,7 +262,8 @@ public abstract class DashClockExtension extends Service {
         return mBinder;
     }
 
-    private IExtension.Stub mBinder = new IExtension.Stub() {
+    private final IExtension.Stub mBinder = new IExtension.Stub() {
+        @SuppressWarnings("deprecation")
         @Override
         public void onInitialize(IExtensionHost host, boolean isReconnect) throws RemoteException {
             if (!mIsWorldReadable) {
@@ -280,6 +282,7 @@ public abstract class DashClockExtension extends Service {
                             for (Signature signature : DashClockSignature.SIGNATURES) {
                                 if (signature.equals(pi.signatures[0])) {
                                     verified = true;
+                                    break;
                                 }
                             }
                         }
@@ -308,12 +311,7 @@ public abstract class DashClockExtension extends Service {
             }
 
             // Do this in a separate thread
-            mServiceHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    DashClockExtension.this.onUpdateData(reason);
-                }
-            });
+            mServiceHandler.post(() -> DashClockExtension.this.onUpdateData(reason));
         }
     };
 

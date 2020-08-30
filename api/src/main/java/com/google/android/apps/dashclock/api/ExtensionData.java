@@ -66,6 +66,7 @@ import java.net.URISyntaxException;
  *
  * @see DashClockExtension#publishUpdate(ExtensionData)
  */
+@SuppressWarnings("unused")
 public class ExtensionData implements Parcelable {
     /**
      * Since there might be a case where new versions of DashClock use extensions running
@@ -400,7 +401,7 @@ public class ExtensionData implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        /**
+        /*
          * NOTE: When adding fields in the process of updating this API, make sure to bump
          * {@link #PARCELABLE_VERSION}.
          */
