@@ -25,7 +25,7 @@ public final class DashClockSignature {
     /**
      * The signature of official DashClock host apps
      */
-    public static final Signature SIGNATURES[] = {
+    public static final Signature[] SIGNATURES = {
             // The official DashClock app (net.nurik.roman.dashclock)
             new Signature(""
             + "308203523082023aa00302010202044c1132a9300d06092a864886f70d0101050500306b310b30090603"

@@ -18,25 +18,28 @@ package com.dvtonder.extensionhost;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
+import androidx.preference.PreferenceManager;
 
 /**
  * A dialog allowing the user to enable "force world readable" mode,
  * intended to be called from other hosts.
  */
-public class EnableForceWorldReadableDialogActivity extends Activity {
+public class EnableForceWorldReadableDialogActivity extends AppCompatActivity {
     @SuppressLint("CommitTransaction")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
-            new ForceWorldReadableDialog().show(getFragmentManager().beginTransaction(), "dialog");
+            new ForceWorldReadableDialog().show(getSupportFragmentManager().beginTransaction(), "dialog");
         }
     }
 
@@ -50,6 +53,7 @@ public class EnableForceWorldReadableDialogActivity extends Activity {
         public ForceWorldReadableDialog() {
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             return new AlertDialog.Builder(getActivity(), R.style.Theme_Dialog)
@@ -70,7 +74,7 @@ public class EnableForceWorldReadableDialogActivity extends Activity {
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog) {
+        public void onDismiss(@NonNull DialogInterface dialog) {
             super.onDismiss(dialog);
             if (getActivity() != null) {
                 getActivity().finish();

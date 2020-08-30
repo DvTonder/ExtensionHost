@@ -74,18 +74,18 @@ class ExtensionHost {
      */
     static final int UPDATE_COLLAPSE_TIME_MILLIS = 500;
 
-    private Context mContext;
-    private Handler mClientThreadHandler = new Handler();
+    private final Context mContext;
+    private final Handler mClientThreadHandler = new Handler();
 
-    private ExtensionManager mExtensionManager;
+    private final ExtensionManager mExtensionManager;
 
-    private Map<ComponentName, Connection> mExtensionConnections = new HashMap<>();
+    private final Map<ComponentName, Connection> mExtensionConnections = new HashMap<>();
 
     private final Set<ComponentName> mExtensionsToUpdateWhenScreenOn = new HashSet<>();
     private boolean mScreenOnReceiverRegistered = false;
 
-    private volatile Looper mAsyncLooper;
-    private volatile Handler mAsyncHandler;
+    private final Looper mAsyncLooper;
+    private final Handler mAsyncHandler;
 
     ExtensionHost(Service context) {
         mContext = context;
@@ -307,7 +307,7 @@ class ExtensionHost {
         }
     }
 
-    private ExtensionManager.OnChangeListener mChangeListener = new ExtensionManager.OnChangeListener() {
+    private final ExtensionManager.OnChangeListener mChangeListener = new ExtensionManager.OnChangeListener() {
         @Override
         public void onExtensionsChanged(ComponentName sourceExtension) {
             if (sourceExtension != null) {

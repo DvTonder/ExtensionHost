@@ -56,11 +56,11 @@ class ExtensionManager {
 
     private final Set<ExtensionWithData> mActiveExtensions = new HashSet<>();
 
-    private Map<ComponentName, ExtensionWithData> mExtensionInfoMap = new HashMap<>();
-    private List<OnChangeListener> mOnChangeListeners = new ArrayList<>();
+    private final Map<ComponentName, ExtensionWithData> mExtensionInfoMap = new HashMap<>();
+    private final List<OnChangeListener> mOnChangeListeners = new ArrayList<>();
 
-    private SharedPreferences mValuesPreferences;
-    private Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    private final SharedPreferences mValuesPreferences;
+    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
     private static ExtensionManager sInstance;
 

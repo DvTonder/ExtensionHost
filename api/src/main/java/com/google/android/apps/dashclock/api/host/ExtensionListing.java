@@ -20,6 +20,8 @@ import android.content.ComponentName;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Objects;
+
 /**
  * A parcelable, serializable object containing information about an
  * {@link com.google.android.apps.dashclock.api.DashClockExtension} shared with your
@@ -39,6 +41,7 @@ import android.os.Parcelable;
  *
  * @see DashClockHost
  */
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class ExtensionListing implements Parcelable {
     /**
      * Since there might be a case where new versions of DashClock use extensions running
@@ -224,7 +227,7 @@ public class ExtensionListing implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        /**
+        /*
          * NOTE: When adding fields in the process of updating this API, make sure to bump
          * {@link #PARCELABLE_VERSION}.
          */
@@ -260,15 +263,10 @@ public class ExtensionListing implements Parcelable {
         if (mProtocolVersion != that.mProtocolVersion) return false;
         if (mCompatible != that.mCompatible) return false;
         if (mWorldReadable != that.mWorldReadable) return false;
-        if (mComponentName != null ? !mComponentName.equals(that.mComponentName) : that.mComponentName != null)
-            return false;
-        if (mDescription != null ? !mDescription.equals(that.mDescription) : that.mDescription != null)
-            return false;
-        if (mSettingsActivity != null ? !mSettingsActivity.equals(that.mSettingsActivity) : that.mSettingsActivity != null)
-            return false;
-        if (mTitle != null ? !mTitle.equals(that.mTitle) : that.mTitle != null) return false;
-
-        return true;
+        if (!Objects.equals(mComponentName, that.mComponentName)) return false;
+        if (!Objects.equals(mDescription, that.mDescription)) return false;
+        if (!Objects.equals(mSettingsActivity, that.mSettingsActivity)) return false;
+        return Objects.equals(mTitle, that.mTitle);
     }
 
     @Override
