@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-apply plugin: 'maven'
 apply plugin: 'signing'
 apply plugin: 'java'
 
 jar.archiveBaseName.set('dashclock-api')
 group = 'com.google.android.apps.dashclock'
-version = '2.3.0'
+version = '2.5.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -30,7 +29,7 @@ props.load(new FileInputStream(file('../local.properties')))
 
 def android = [
         sdk: props["sdk.dir"],
-        target: 'android-29'
+        target: 'android-32'
 ]
 
 allprojects { ext."signing.keyId" = props["signing.keyId"] }
