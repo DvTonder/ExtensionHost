@@ -102,4 +102,5 @@ android {
         abortOnError false
         disable 'MissingTranslation'
     }
+    namespace 'com.dvtonder.extensionhost'
 }
