@@ -19,7 +19,7 @@ apply plugin: 'java'
 
 jar.archiveBaseName.set('dashclock-api')
 group = 'com.google.android.apps.dashclock'
-version = '2.5.0'
+version = '2.5.1'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
@@ -29,7 +29,7 @@ props.load(new FileInputStream(file('../local.properties')))
 
 def android = [
         sdk: props["sdk.dir"],
-        target: 'android-34'
+        target: 'android-36'
 ]
 
 allprojects { ext."signing.keyId" = props["signing.keyId"] }
