@@ -144,7 +144,8 @@ public class HostService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (DEBUG) Log.d(TAG, "onStartCommand: " + (intent != null ? intent.toString() : "no intent"));
-        enforceCallingPermission(DashClockExtension.PERMISSION_READ_EXTENSION_DATA);
+        // Permission is enforced at the OS level via android:permission on the <service> in
+        // the manifest. Binder.getCallingUid() is not valid in onStartCommand (returns own UID).
 
         if (intent != null) {
             String action = intent.getAction();
@@ -153,7 +154,7 @@ public class HostService extends Service implements
             }
         }
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private Handler mUpdateHandler = new Handler() {
@@ -214,7 +215,8 @@ public class HostService extends Service implements
             if (cb == null) {
                 throw new NullPointerException("Callback must not be null");
             }
-            enforceCallingPermission(DashClockHost.BIND_DATA_CONSUMER_PERMISSION);
+            enforceCallingOrSelfPermission(DashClockHost.BIND_DATA_CONSUMER_PERMISSION,
+                    "Caller must hold BIND_DATA_CONSUMER permission");
 
             final int callingUid = Binder.getCallingUid();
             mHandler.post(() -> {
@@ -441,32 +443,6 @@ public class HostService extends Service implements
             }
         }
         throw new SecurityException("Extension is not enabled for caller.");
-    }
-
-    private void enforceCallingPermission(String permission) throws SecurityException {
-        // We need to check that any of the packages of the caller has
-        // the request permission
-        final PackageManager pm = getPackageManager();
-        try {
-            String[] packages = pm.getPackagesForUid(Binder.getCallingUid());
-            if (packages != null) {
-                for (String pkg : packages) {
-                    PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_PERMISSIONS);
-                    if (pi.requestedPermissions != null) {
-                        for (String requestedPermission : pi.requestedPermissions) {
-                            if (requestedPermission.equals(permission)) {
-                                // The caller has the request permission
-                                return;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (PackageManager.NameNotFoundException ex) {
-            // Ignore. Package wasn't found
-        }
-        throw new SecurityException("Caller doesn't have the request permission \""
-                + permission + "\"");
     }
 
     private CallbackData createCallbackData(int uid) {

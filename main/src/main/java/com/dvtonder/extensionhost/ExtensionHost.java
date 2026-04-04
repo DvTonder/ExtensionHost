@@ -196,6 +196,7 @@ class ExtensionHost {
                         Iterator<Pair<Object, Operation>> it = conn.deferredOps.iterator();
                         while (it.hasNext()) {
                             Pair<Object, Operation> op = it.next();
+                            it.remove();
                             if (op.first != null) {
                                 if (processedCollapsedTokens.contains(op.first)) {
                                     // An operation with this collapse token has already been
@@ -206,7 +207,6 @@ class ExtensionHost {
                                 processedCollapsedTokens.add(op.first);
                             }
                             execute(conn, op.second, 0, null);
-                            it.remove();
                         }
                     }
                 }
