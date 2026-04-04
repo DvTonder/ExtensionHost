@@ -34,8 +34,6 @@ import android.os.Message;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -56,7 +54,6 @@ import java.util.Map;
 /**
  * The primary service for DashClock. This service is in charge of updating extension data (see {@link #ACTION_UPDATE_EXTENSIONS}).
  */
-@SuppressWarnings("ALL")
 public class HostService extends Service implements
         ExtensionManager.OnChangeListener,
         SharedPreferences.OnSharedPreferenceChangeListener {
@@ -72,12 +69,6 @@ public class HostService extends Service implements
     public static final String ACTION_UPDATE_EXTENSIONS = "com.google.android.apps.dashclock.action.UPDATE_EXTENSIONS";
     public static final String EXTRA_COMPONENT_NAME = "com.google.android.apps.dashclock.extra.COMPONENT_NAME";
     public static final String EXTRA_UPDATE_REASON = "com.google.android.apps.dashclock.extra.UPDATE_REASON";
-
-    /**
-     * Related to the Read API.
-     */
-    protected static final String ACTION_EXTENSION_UPDATE_REQUESTED =
-            "com.google.android.apps.dashclock.action.EXTENSION_UPDATE_REQUESTED";
 
     /**
      * Broadcast intent action that's triggered when the set of visible extensions or their
@@ -117,8 +108,14 @@ public class HostService extends Service implements
         mExtensionManager.addOnChangeListener(this);
         mExtensionHost = new ExtensionHost(this);
 
-        IntentFilter filter = new IntentFilter(ACTION_EXTENSION_UPDATE_REQUESTED);
-        LocalBroadcastManager.getInstance(this).registerReceiver(mExtensionEventsReceiver, filter);
+        // Invalidate the extension cache when packages change
+        IntentFilter packageFilter = new IntentFilter();
+        packageFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        packageFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        packageFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        packageFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        packageFilter.addDataScheme("package");
+        registerReceiver(mPackageChangeReceiver, packageFilter);
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
         sp.registerOnSharedPreferenceChangeListener(this);
@@ -130,8 +127,7 @@ public class HostService extends Service implements
         super.onDestroy();
         if (DEBUG) Log.d(TAG, "onDestroy");
 
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mExtensionEventsReceiver);
-
+        unregisterReceiver(mPackageChangeReceiver);
         mExtensionHost.destroy();
         mCallbacks.kill();
 
@@ -520,20 +516,19 @@ public class HostService extends Service implements
         }
 
         // Request an update of all the extensions in the list
-        final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-        for (ComponentName updatableExtension: updatableExtensions) {
-            Intent intent = new Intent(ACTION_EXTENSION_UPDATE_REQUESTED);
+        for (ComponentName updatableExtension : updatableExtensions) {
+            Intent intent = new Intent(ACTION_UPDATE_EXTENSIONS);
             intent.putExtra(EXTRA_COMPONENT_NAME, updatableExtension.flattenToString());
             intent.putExtra(EXTRA_UPDATE_REASON, DashClockExtension.UPDATE_REASON_MANUAL);
-            lbm.sendBroadcast(intent);
+            handleUpdateExtensions(intent);
         }
     }
-    private final BroadcastReceiver mExtensionEventsReceiver = new BroadcastReceiver() {
+
+    private final BroadcastReceiver mPackageChangeReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (ACTION_EXTENSION_UPDATE_REQUESTED.equals(intent.getAction())) {
-                handleUpdateExtensions(intent);
-            }
+            mExtensionManager.invalidateExtensionCache();
+            onExtensionsChanged(null);
         }
     };
 }

@@ -21,7 +21,6 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.apps.dashclock.api.DashClockExtension;
 
@@ -66,11 +65,11 @@ public class ExtensionSettingActivityProxy extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RESULT_EXTENSION_SETTINGS) {
-            final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(this);
-            Intent intent = new Intent(HostService.ACTION_EXTENSION_UPDATE_REQUESTED);
+            Intent intent = new Intent(HostService.ACTION_UPDATE_EXTENSIONS);
             intent.putExtra(HostService.EXTRA_COMPONENT_NAME, mExtension);
             intent.putExtra(HostService.EXTRA_UPDATE_REASON, DashClockExtension.UPDATE_REASON_SETTINGS_CHANGED);
-            lbm.sendBroadcast(intent);
+            intent.setClass(this, HostService.class);
+            startService(intent);
         }
         finish();
     }

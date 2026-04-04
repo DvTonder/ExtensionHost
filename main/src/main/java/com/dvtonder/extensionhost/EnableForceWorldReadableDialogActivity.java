@@ -19,6 +19,7 @@ package com.dvtonder.extensionhost;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -65,8 +66,11 @@ public class EnableForceWorldReadableDialogActivity extends AppCompatActivity {
                     )
                     .setPositiveButton(R.string.force_world_readable_dialog_yes,
                             (dialog, whichButton) -> {
-                                enableForceWorldReadable();
-                                getActivity().setResult(Activity.RESULT_OK);
+                                Activity activity = getActivity();
+                                if (activity != null) {
+                                    enableForceWorldReadable(activity);
+                                    activity.setResult(Activity.RESULT_OK);
+                                }
                                 dialog.dismiss();
                             }
                     )
@@ -81,8 +85,8 @@ public class EnableForceWorldReadableDialogActivity extends AppCompatActivity {
             }
         }
 
-        private void enableForceWorldReadable() {
-            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        private void enableForceWorldReadable(Context context) {
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
             sp.edit().putBoolean(HostService.PREF_FORCE_WORLD_READABLE, true).apply();
         }
     }

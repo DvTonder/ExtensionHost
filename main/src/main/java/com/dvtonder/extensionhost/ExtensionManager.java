@@ -58,6 +58,7 @@ class ExtensionManager {
 
     private final Map<ComponentName, ExtensionWithData> mExtensionInfoMap = new HashMap<>();
     private final List<OnChangeListener> mOnChangeListeners = new ArrayList<>();
+    private List<ExtensionListing> mCachedAvailableExtensions;
 
     private final SharedPreferences mValuesPreferences;
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
@@ -247,9 +248,25 @@ class ExtensionManager {
 
     /**
      * Returns a listing of all available (installed) extensions, including those that aren't
-     * world-readable.
+     * world-readable. Results are cached; call {@link #invalidateExtensionCache()} when
+     * packages are added, removed, or changed.
      */
     List<ExtensionListing> getAvailableExtensions() {
+        if (mCachedAvailableExtensions == null) {
+            mCachedAvailableExtensions = queryAvailableExtensions();
+        }
+        return mCachedAvailableExtensions;
+    }
+
+    /**
+     * Invalidates the cached list of available extensions, forcing the next call to
+     * {@link #getAvailableExtensions()} to re-query the PackageManager.
+     */
+    void invalidateExtensionCache() {
+        mCachedAvailableExtensions = null;
+    }
+
+    private List<ExtensionListing> queryAvailableExtensions() {
         List<ExtensionListing> availableExtensions = new ArrayList<>();
         PackageManager pm = mApplicationContext.getPackageManager();
         List<ResolveInfo> resolveInfos = pm.queryIntentServices(new Intent(DashClockExtension.ACTION_EXTENSION), PackageManager.GET_META_DATA);
