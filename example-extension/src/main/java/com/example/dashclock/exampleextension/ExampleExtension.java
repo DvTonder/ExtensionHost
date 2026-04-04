@@ -22,11 +22,10 @@ import com.google.android.apps.dashclock.api.ExtensionData;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.preference.PreferenceManager;
+
+import androidx.preference.PreferenceManager;
 
 public class ExampleExtension extends DashClockExtension {
-    private static final String TAG = "ExampleExtension";
-
     public static final String PREF_NAME = "pref_name";
 
     @Override
@@ -43,6 +42,6 @@ public class ExampleExtension extends DashClockExtension {
                 .expandedTitle("Hello, " + name + "!")
                 .expandedBody("Thanks for checking out this example extension for DashClock.")
                 .contentDescription("Completely different text for accessibility if needed.")
-                .clickIntent(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.google.com"))));
+                .clickIntent(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"))));
     }
 }
