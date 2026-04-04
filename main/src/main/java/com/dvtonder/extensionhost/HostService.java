@@ -30,10 +30,10 @@ import android.os.Build;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
+import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -93,7 +93,7 @@ public class HostService extends Service implements
     private ExtensionManager mExtensionManager;
     private CallbackList mCallbacks;
     private Map<IBinder, CallbackData> mRegisteredCallbacks;
-    private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
     private boolean mForceWorldReadable;
 
     @Override
@@ -154,14 +154,12 @@ public class HostService extends Service implements
         return START_NOT_STICKY;
     }
 
-    private Handler mUpdateHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            if (DEBUG) Log.d(TAG, "onExtensionsChanged from "
-                    + (msg.obj != null ? "extension " + msg.obj : "DashClock"));
-            sendBroadcast(new Intent(ACTION_EXTENSIONS_CHANGED));
-        }
-    };
+    private final Handler mUpdateHandler = new Handler(Looper.getMainLooper(), msg -> {
+        if (DEBUG) Log.d(TAG, "onExtensionsChanged from "
+                + (msg.obj != null ? "extension " + msg.obj : "DashClock"));
+        sendBroadcast(new Intent(ACTION_EXTENSIONS_CHANGED));
+        return true;
+    });
 
     /**
      * Asks extensions to provide data updates.
@@ -325,9 +323,7 @@ public class HostService extends Service implements
     }
 
     private boolean isExtensionReadableByHost(ExtensionManager.ExtensionWithData e, CallbackData data) {
-        return mForceWorldReadable
-                || e.listing.worldReadable()
-                || (!e.listing.worldReadable() && data.mHasDashClockSignature);
+        return mForceWorldReadable || e.listing.worldReadable() || data.mHasDashClockSignature;
     }
 
     @Override
