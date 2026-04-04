@@ -26,6 +26,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -316,8 +317,14 @@ public class HostService extends Service implements
         @Override
         public void onCallbackDied(IDataConsumerHostCallback cb) {
             super.onCallbackDied(cb);
-            mRegisteredCallbacks.remove(cb.asBinder());
-            recalculateActiveExtensions();
+            // onCallbackDied is called from the binder thread pool, but
+            // mRegisteredCallbacks is accessed from the main thread. Post
+            // to serialize access and avoid a race condition.
+            final IBinder deadBinder = cb.asBinder();
+            mHandler.post(() -> {
+                mRegisteredCallbacks.remove(deadBinder);
+                recalculateActiveExtensions();
+            });
         }
     }
 
@@ -450,20 +457,26 @@ public class HostService extends Service implements
         String packageName = null;
         PackageManager pm = getPackageManager();
         String[] packages = pm.getPackagesForUid(uid);
-        if (packages != null && packages.length > 0) {
-            try {
-                PackageInfo pi = pm.getPackageInfo(packages[0], PackageManager.GET_SIGNATURES);
-                packageName = pi.packageName;
+        if (packages != null) {
+            for (String pkg : packages) {
+                try {
+                    Signature[] signatures = getPackageSignatures(pm, pkg);
+                    if (packageName == null) {
+                        packageName = pkg;
+                    }
 
-                // Validate the signature against known-good host apps
-                if (pi.signatures != null && pi.signatures.length == 1) {
-                    for (Signature signature : DashClockSignature.SIGNATURES) {
-                        if(signature.equals(pi.signatures[0])) {
-                            hasDashClockSignature = true;
+                    // Validate the signature against known-good host apps
+                    if (signatures != null && signatures.length > 0) {
+                        for (Signature pkgSig : signatures) {
+                            for (Signature trustedSig : DashClockSignature.SIGNATURES) {
+                                if (trustedSig.equals(pkgSig)) {
+                                    hasDashClockSignature = true;
+                                }
+                            }
                         }
                     }
+                } catch (PackageManager.NameNotFoundException ignored) {
                 }
-            } catch (PackageManager.NameNotFoundException ignored) {
             }
         }
 
@@ -472,6 +485,23 @@ public class HostService extends Service implements
         data.mPackage = packageName;
         data.mHasDashClockSignature = hasDashClockSignature;
         return data;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Signature[] getPackageSignatures(PackageManager pm, String pkg)
+            throws PackageManager.NameNotFoundException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SIGNING_CERTIFICATES);
+            if (pi.signingInfo == null) {
+                return null;
+            }
+            return pi.signingInfo.hasMultipleSigners()
+                    ? pi.signingInfo.getApkContentsSigners()
+                    : pi.signingInfo.getSigningCertificateHistory();
+        } else {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES);
+            return pi.signatures;
+        }
     }
 
     private void internalRequestUpdateData(final IDataConsumerHostCallback cb,

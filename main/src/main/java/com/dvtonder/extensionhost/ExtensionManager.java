@@ -236,9 +236,11 @@ class ExtensionManager {
 
     Set<ComponentName> getActiveExtensionNames() {
         Set<ComponentName> list = new HashSet<>();
-        for (ExtensionWithData ci : mActiveExtensions) {
-            list.add(ci.listing.componentName());
-            if (DEBUG) Log.d(TAG, "Active extension: " + ci.listing.componentName().getClassName());
+        synchronized (mActiveExtensions) {
+            for (ExtensionWithData ci : mActiveExtensions) {
+                list.add(ci.listing.componentName());
+                if (DEBUG) Log.d(TAG, "Active extension: " + ci.listing.componentName().getClassName());
+            }
         }
         return list;
     }
