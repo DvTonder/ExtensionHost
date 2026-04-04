@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(pro|txt\\)$\")",
+      "Bash(./gradlew :main:assembleDebug:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(./gradlew :api:compileAidl:*)",
+      "Bash(./gradlew :api:assembleRelease)",
+      "Bash(./gradlew :api:assemble)",
+      "Bash(grep -v \"^$\")",
+      "Bash(./gradlew :api:jar)"
+    ]
+  }
+}
