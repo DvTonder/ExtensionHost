@@ -19,7 +19,6 @@ package com.google.android.apps.dashclock.api;
 import com.google.android.apps.dashclock.api.internal.IExtension;
 import com.google.android.apps.dashclock.api.internal.IExtensionHost;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -27,6 +26,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -267,26 +267,29 @@ public abstract class DashClockExtension extends Service {
         @Override
         public void onInitialize(IExtensionHost host, boolean isReconnect) throws RemoteException {
             if (!mIsWorldReadable) {
-                // If not world readable, check the signature of the [first] package with the given
-                // UID against the known-good official DashClock app signature.
+                // Check the signatures of all packages with the given UID against
+                // known-good official DashClock app signatures.
                 boolean verified = false;
                 PackageManager pm = getPackageManager();
                 String[] packages = pm.getPackagesForUid(getCallingUid());
-                if (packages != null && packages.length > 0) {
-                    try {
-                        @SuppressLint("PackageManagerGetSignatures")
-                        PackageInfo pi = pm.getPackageInfo(packages[0], PackageManager.GET_SIGNATURES);
-
-                        // Validate the signature against known-good host apps
-                        if (pi.signatures != null && pi.signatures.length == 1) {
-                            for (Signature signature : DashClockSignature.SIGNATURES) {
-                                if (signature.equals(pi.signatures[0])) {
-                                    verified = true;
-                                    break;
+                if (packages != null) {
+                    for (String pkg : packages) {
+                        try {
+                            Signature[] signatures = getPackageSignatures(pm, pkg);
+                            if (signatures != null) {
+                                for (Signature pkgSig : signatures) {
+                                    for (Signature trustedSig : DashClockSignature.SIGNATURES) {
+                                        if (trustedSig.equals(pkgSig)) {
+                                            verified = true;
+                                            break;
+                                        }
+                                    }
+                                    if (verified) break;
                                 }
                             }
+                        } catch (PackageManager.NameNotFoundException ignored) {
                         }
-                    } catch (PackageManager.NameNotFoundException ignored) {
+                        if (verified) break;
                     }
                 }
 
@@ -420,6 +423,23 @@ public abstract class DashClockExtension extends Service {
             mHost.setUpdateWhenScreenOn(updateWhenScreenOn);
         } catch (RemoteException e) {
             Log.e(TAG, "Couldn't set the extension to update upon ACTION_SCREEN_ON.", e);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Signature[] getPackageSignatures(PackageManager pm, String pkg)
+            throws PackageManager.NameNotFoundException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SIGNING_CERTIFICATES);
+            if (pi.signingInfo == null) {
+                return null;
+            }
+            return pi.signingInfo.hasMultipleSigners()
+                    ? pi.signingInfo.getApkContentsSigners()
+                    : pi.signingInfo.getSigningCertificateHistory();
+        } else {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES);
+            return pi.signatures;
         }
     }
 }

@@ -16,7 +16,6 @@
 
 package com.google.android.apps.dashclock.api.host;
 
-import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +30,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 
@@ -109,15 +109,14 @@ public abstract class DashClockHost {
 
     /**
      * Return a list of packages that implement the {@link
-     * DashClockExtension#PERMISSION_READ_EXTENSION_DATA} permission and aren't DashClock
+     * DashClockExtension#PERMISSION_READ_EXTENSION_DATA} permission and aren't DashClock.
+     *
+     * <p>Note: On Android 11+ (API 30+), this method requires the calling app to declare
+     * appropriate {@code <queries>} elements in its manifest to see other installed apps.
+     * Without this, the returned list may be incomplete due to package visibility filtering.
      */
     public static List<String> getOtherAppsWithReadDataExtensionsPermission(Context context) {
         List<String> installedApps = new ArrayList<>();
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            // There is no problem with the PERMISSION_READ_EXTENSION_DATA if
-            // the api supports multiple apps defining the same permission (< Lollipop)
-            return installedApps;
-        }
         PackageManager pm = context.getPackageManager();
         List<ApplicationInfo> apps = pm.getInstalledApplications(PackageManager.GET_META_DATA);
         for (ApplicationInfo ai : apps) {
@@ -144,7 +143,7 @@ public abstract class DashClockHost {
 
     protected DashClockHost(Context context) throws SecurityException {
         mContext = context;
-        mHandler = new Handler(mHandlerCallback);
+        mHandler = new Handler(Looper.getMainLooper(), mHandlerCallback);
         mDataCache = new HashMap<>();
         mAvailableExtensions = new ArrayList<>();
         try {
@@ -173,6 +172,7 @@ public abstract class DashClockHost {
             } catch (RemoteException e) {
                 // ignored
             }
+            mService = null;
         }
     }
 
@@ -532,9 +532,8 @@ public abstract class DashClockHost {
         PackageManager pm = context.getPackageManager();
         boolean debuggable = (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
         try {
-            @SuppressLint("PackageManagerGetSignatures")
-            PackageInfo pi = pm.getPackageInfo(MULTIPLEXER_HOST_SERVICE.getPackageName(),
-                    PackageManager.GET_SIGNATURES | PackageManager.GET_SERVICES);
+            String pkg = MULTIPLEXER_HOST_SERVICE.getPackageName();
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SERVICES);
             if ((pi.applicationInfo != null && pi.applicationInfo.enabled) && pi.services != null) {
                 for (ServiceInfo si : pi.services) {
                     if (MULTIPLEXER_HOST_SERVICE.getClassName().equals(si.name) && si.enabled) {
@@ -543,10 +542,13 @@ public abstract class DashClockHost {
                         }
 
                         // Validate the signature against known-good host apps
-                        if (pi.signatures != null && pi.signatures.length == 1) {
-                            for (Signature signature : DashClockSignature.SIGNATURES) {
-                                if (signature.equals(pi.signatures[0])) {
-                                    return MULTIPLEXER_HOST_SERVICE;
+                        Signature[] signatures = getPackageSignatures(pm, pkg);
+                        if (signatures != null) {
+                            for (Signature pkgSig : signatures) {
+                                for (Signature trustedSig : DashClockSignature.SIGNATURES) {
+                                    if (trustedSig.equals(pkgSig)) {
+                                        return MULTIPLEXER_HOST_SERVICE;
+                                    }
                                 }
                             }
                         }
@@ -557,6 +559,23 @@ public abstract class DashClockHost {
             // ignored
         }
         return null;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Signature[] getPackageSignatures(PackageManager pm, String pkg)
+            throws NameNotFoundException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SIGNING_CERTIFICATES);
+            if (pi.signingInfo == null) {
+                return null;
+            }
+            return pi.signingInfo.hasMultipleSigners()
+                    ? pi.signingInfo.getApkContentsSigners()
+                    : pi.signingInfo.getSigningCertificateHistory();
+        } else {
+            PackageInfo pi = pm.getPackageInfo(pkg, PackageManager.GET_SIGNATURES);
+            return pi.signatures;
+        }
     }
 
     @SuppressWarnings("SameParameterValue")

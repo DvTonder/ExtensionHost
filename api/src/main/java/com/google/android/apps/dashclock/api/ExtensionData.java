@@ -27,6 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 /**
  * A parcelable, serializable object representing data related to a {@link DashClockExtension} that
@@ -433,35 +434,20 @@ public class ExtensionData implements Parcelable {
         return 0;
     }
 
-    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override
     public boolean equals(Object o) {
-        if (o == null) {
-            return false;
-        }
+        if (this == o) return true;
+        if (!(o instanceof ExtensionData)) return false;
 
-        try {
-            ExtensionData other = (ExtensionData) o;
-            return other.mVisible == mVisible
-                    && other.mIcon == mIcon
-                    && objectEquals(other.mIconUri, mIconUri)
-                    && TextUtils.equals(other.mStatus, mStatus)
-                    && TextUtils.equals(other.mExpandedTitle, mExpandedTitle)
-                    && TextUtils.equals(other.mExpandedBody, mExpandedBody)
-                    && objectEquals(other.mClickIntent, mClickIntent)
-                    && TextUtils.equals(other.mContentDescription, mContentDescription);
-
-        } catch (ClassCastException e) {
-            return false;
-        }
-    }
-
-    private static boolean objectEquals(Object x, Object y) {
-        if (x == null || y == null) {
-            return x == y;
-        } else {
-            return x.equals(y);
-        }
+        ExtensionData other = (ExtensionData) o;
+        return other.mVisible == mVisible
+                && other.mIcon == mIcon
+                && Objects.equals(other.mIconUri, mIconUri)
+                && TextUtils.equals(other.mStatus, mStatus)
+                && TextUtils.equals(other.mExpandedTitle, mExpandedTitle)
+                && TextUtils.equals(other.mExpandedBody, mExpandedBody)
+                && Objects.equals(other.mClickIntent, mClickIntent)
+                && TextUtils.equals(other.mContentDescription, mContentDescription);
     }
 
     /**
@@ -486,7 +472,8 @@ public class ExtensionData implements Parcelable {
 
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException();
+        return Objects.hash(mVisible, mIcon, mIconUri, mStatus,
+                mExpandedTitle, mExpandedBody, mClickIntent, mContentDescription);
     }
 
     /**
@@ -507,7 +494,7 @@ public class ExtensionData implements Parcelable {
             mExpandedBody = mExpandedBody.substring(0, MAX_EXPANDED_BODY_LENGTH);
         }
         if (!TextUtils.isEmpty(mContentDescription)
-                && mContentDescription.length() > MAX_EXPANDED_BODY_LENGTH) {
+                && mContentDescription.length() > MAX_CONTENT_DESCRIPTION_LENGTH) {
             mContentDescription = mContentDescription.substring(0, MAX_CONTENT_DESCRIPTION_LENGTH);
         }
     }
