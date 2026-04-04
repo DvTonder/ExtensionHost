@@ -48,7 +48,7 @@ public class ExtensionListing implements Parcelable {
      * old versions of the protocol (and thus old versions of this class), we need a versioning
      * system for the parcels sent between the core app and its extensions.
      */
-    public static final int PARCELABLE_VERSION = 1;
+    public static final int PARCELABLE_VERSION = 2;
 
     private ComponentName mComponentName;
     private int mProtocolVersion;
@@ -209,6 +209,14 @@ public class ExtensionListing implements Parcelable {
     private ExtensionListing(Parcel in) {
         int parcelableVersion = in.readInt();
 
+        // Version 2+ includes a size field for forward compatibility
+        int dataSize = 0;
+        int dataStartPos = 0;
+        if (parcelableVersion >= 2) {
+            dataSize = in.readInt();
+            dataStartPos = in.dataPosition();
+        }
+
         // Version 1 below
         if (parcelableVersion >= 1) {
             mComponentName = ComponentName.readFromParcel(in);
@@ -223,6 +231,11 @@ public class ExtensionListing implements Parcelable {
                 mSettingsActivity = ComponentName.readFromParcel(in);
             }
         }
+
+        // Skip any fields added by a newer writer that this reader doesn't know about
+        if (parcelableVersion >= 2) {
+            in.setDataPosition(dataStartPos + dataSize);
+        }
     }
 
     @Override
@@ -232,6 +245,12 @@ public class ExtensionListing implements Parcelable {
          * {@link #PARCELABLE_VERSION}.
          */
         parcel.writeInt(PARCELABLE_VERSION);
+
+        // Version 2+: write a placeholder for the data size, then fill it in at the end.
+        // This allows older readers to skip unknown fields added in newer versions.
+        int sizePos = parcel.dataPosition();
+        parcel.writeInt(0);
+        int dataStartPos = parcel.dataPosition();
 
         // Version 1 below
         mComponentName.writeToParcel(parcel, 0);
@@ -245,6 +264,12 @@ public class ExtensionListing implements Parcelable {
         if (mSettingsActivity != null) {
             mSettingsActivity.writeToParcel(parcel, 0);
         }
+
+        // Go back and write the actual data size
+        int dataEndPos = parcel.dataPosition();
+        parcel.setDataPosition(sizePos);
+        parcel.writeInt(dataEndPos - dataStartPos);
+        parcel.setDataPosition(dataEndPos);
     }
 
     @Override
