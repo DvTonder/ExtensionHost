@@ -19,7 +19,7 @@ apply plugin: 'java'
 
 jar.archiveBaseName.set('dashclock-api')
 group = 'com.google.android.apps.dashclock'
-version = '2.5.1'
+version = '2.6.0'
 
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
