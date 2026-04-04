@@ -46,8 +46,7 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <service android:name="com.dvtonder.extensionhost.HostService"
-            android:exported="true"
-            android:permission="com.google.android.apps.dashclock.permission.READ_EXTENSION_DATA" />
+            android:exported="true" />
 
         <activity
             android:name="com.dvtonder.extensionhost.ExtensionSettingActivityProxy"
