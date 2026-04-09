@@ -274,24 +274,32 @@ class ExtensionManager {
         if (DEBUG) Log.d(TAG, "Searching for available extensions...");
 
         for (ResolveInfo resolveInfo : resolveInfos) {
-            if (DEBUG) Log.d(TAG, "Checking resolveInfo: " + resolveInfo.loadLabel(pm).toString());
-
-            ExtensionListing info = new ExtensionListing();
-            info.componentName(new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name));
-            info.title(resolveInfo.loadLabel(pm).toString());
-            Bundle metaData = resolveInfo.serviceInfo.metaData;
-            if (metaData != null) {
-                info.compatible(ExtensionHost.supportsProtocolVersion(metaData.getInt("protocolVersion")));
-                info.worldReadable(metaData.getBoolean("worldReadable", false));
-                info.description(metaData.getString("description"));
-                String settingsActivity = metaData.getString("settingsActivity");
-                if (!TextUtils.isEmpty(settingsActivity)) {
-                    info.settingsActivity(ComponentName.unflattenFromString(resolveInfo.serviceInfo.packageName + "/" + settingsActivity));
+            try {
+                if (resolveInfo.serviceInfo == null || resolveInfo.serviceInfo.packageName == null
+                        || resolveInfo.serviceInfo.name == null) {
+                    continue;
                 }
-            }
+                if (DEBUG) Log.d(TAG, "Checking resolveInfo: " + resolveInfo.loadLabel(pm).toString());
 
-            info.icon(resolveInfo.getIconResource());
-            availableExtensions.add(info);
+                ExtensionListing info = new ExtensionListing();
+                info.componentName(new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name));
+                info.title(resolveInfo.loadLabel(pm).toString());
+                Bundle metaData = resolveInfo.serviceInfo.metaData;
+                if (metaData != null) {
+                    info.compatible(ExtensionHost.supportsProtocolVersion(metaData.getInt("protocolVersion")));
+                    info.worldReadable(metaData.getBoolean("worldReadable", false));
+                    info.description(metaData.getString("description"));
+                    String settingsActivity = metaData.getString("settingsActivity");
+                    if (!TextUtils.isEmpty(settingsActivity)) {
+                        info.settingsActivity(ComponentName.unflattenFromString(resolveInfo.serviceInfo.packageName + "/" + settingsActivity));
+                    }
+                }
+
+                info.icon(resolveInfo.getIconResource());
+                availableExtensions.add(info);
+            } catch (Exception e) {
+                Log.w(TAG, "Skipping extension due to error: " + e.getMessage());
+            }
         }
 
         if (DEBUG) Log.d(TAG, "List of available extensions has changed. Now contains " + availableExtensions.size() + " items");

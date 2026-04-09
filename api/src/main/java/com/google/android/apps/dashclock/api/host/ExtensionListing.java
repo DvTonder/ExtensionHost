@@ -253,7 +253,12 @@ public class ExtensionListing implements Parcelable {
         int dataStartPos = parcel.dataPosition();
 
         // Version 1 below
-        mComponentName.writeToParcel(parcel, 0);
+        if (mComponentName != null) {
+            mComponentName.writeToParcel(parcel, 0);
+        } else {
+            // Write empty ComponentName to maintain parcel structure
+            new ComponentName("", "").writeToParcel(parcel, 0);
+        }
         parcel.writeInt(mProtocolVersion);
         parcel.writeInt(mCompatible ? 1 : 0);
         parcel.writeInt(mWorldReadable ? 1 : 0);
