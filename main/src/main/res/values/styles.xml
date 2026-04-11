@@ -30,4 +30,20 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+    <!-- AppCompat-based translucent theme used by activities that host a
+         DialogFragment and must not show any UI of their own. Cannot use
+         @android:style/Theme.NoDisplay because AppCompatActivity requires a
+         Theme.AppCompat descendant. -->
+    <style name="Theme.Transparent" parent="Theme.AppCompat.DayNight">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
 </resources>

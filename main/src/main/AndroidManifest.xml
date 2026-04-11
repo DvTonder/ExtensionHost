@@ -55,7 +55,7 @@
             android:exported="false"/>
 
         <activity android:name="com.dvtonder.extensionhost.EnableForceWorldReadableDialogActivity"
-            android:theme="@android:style/Theme.NoDisplay"
+            android:theme="@style/Theme.Transparent"
             android:excludeFromRecents="true"
             android:exported="true">
             <intent-filter>
